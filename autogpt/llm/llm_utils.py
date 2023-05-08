@@ -7,6 +7,7 @@ from typing import List, Optional
 
 import numpy as np
 import openai
+import requests
 import tiktoken
 from colorama import Fore, Style
 from openai.error import APIError, RateLimitError, Timeout
@@ -162,6 +163,13 @@ def create_chat_completion(
                     temperature=temperature,
                     max_tokens=max_tokens,
                 )
+            elif cfg.use_fastchat:
+                response = fastchat_chat_completion(
+                    model=cfg.fastchat_model,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens or cfg.fastchat_token_limit,
+                )
             else:
                 response = api_manager.create_chat_completion(
                     model=model,
@@ -293,3 +301,24 @@ def create_embedding(
     )  # normalize the length to one
     chunk_embeddings = chunk_embeddings.tolist()
     return chunk_embeddings
+
+def fastchat_chat_completion(
+    model,
+    messages,
+    temperature=0.8,
+    max_tokens=4096,
+):
+    cfg = Config()
+    breakpoint()
+    resp = requests.post(
+        f"http://{cfg.fastchat_host}:8000/v1/chat/completions",
+        json={
+            "model": model,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+        },
+    )
+    json_resp = resp.json()
+    logger.debug(f"{json_resp}")
+    return json_resp

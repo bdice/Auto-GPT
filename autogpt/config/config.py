@@ -28,6 +28,12 @@ class Config(metaclass=Singleton):
         self.allow_downloads = False
         self.skip_news = False
 
+        self.fastchat_model = os.getenv("FASTCHAT_MODEL", "fastchat-t5-3b-v1.0")
+        self.fastchat_token_limit = 2048
+        # with docker this needs to be: fastchat-api-server
+        self.fastchat_host = os.getenv("FASTCHAT_HOST", "localhost")
+        self.use_fastchat = os.getenv("USE_FASTCHAT", "False") == "True"
+
         self.authorise_key = os.getenv("AUTHORISE_COMMAND_KEY", "y")
         self.exit_key = os.getenv("EXIT_KEY", "n")
 
